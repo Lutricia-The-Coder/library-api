@@ -1,5 +1,6 @@
 import { Router, Request, Response } from "express";
 import { authors, Author } from "../models/author_model";
+import { books } from "../models/book_model";
 
 const router = Router();
 
@@ -17,7 +18,26 @@ router.post("/", (req: Request, res: Response) => {
 
   res.status(201).json(author);
 });
+// Get all books written by an author.
+router.get("/:id/books", (req: Request, res: Response) => {
+    const id = Number(req.params.id);
 
+    // Check if the author exists.
+    const author = authors.find((author) => author.id === id);
+
+    if (!author) {
+        return res.status(404).json({
+            message: "Author not found"
+        });
+    }
+
+    // Find all books belonging to this author.
+    const authorBooks = books.filter(
+        (book) => book.authorId === id
+    );
+
+    res.status(200).json(authorBooks);
+});
 // Get all authors.
 router.get("/", (_req: Request, res: Response) => {
   res.status(200).json(authors);
