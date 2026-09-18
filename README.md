@@ -26,7 +26,7 @@ git clone https://github.com/Lutricia-The-Coder/library-api.git
 cd <project-folder>
 ```
 
-Replace `<repository-url>` with the URL of your Git repository and `<project-folder>` with the name of the project folder.
+Replace  `<project-folder>` with the name of the project folder.
 
 ### 2. Install dependencies
 
