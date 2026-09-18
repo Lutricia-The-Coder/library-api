@@ -52,10 +52,48 @@ router.post(
 );
 
 // Get all books.
-router.get("/", (_req: Request, res: Response) => {
-    res.status(200).json(books);
-});
+// Get all books with optional filtering, searching, sorting and pagination.
+router.get("/", (req: Request, res: Response) => {
+    const { year, search, sort, page, limit } = req.query;
+    let result = [...books];
 
+    // Filter books by year.
+    if (year) {
+        result = result.filter(
+            (book) => book.year === Number(year)
+        );
+    }
+
+    // Search books by title.
+    if (search) {
+        result = result.filter(
+            (book) =>
+                book.title
+                    .toLowerCase()
+                    .includes(String(search).toLowerCase())
+        );
+    }
+
+    // Sort books by title or year.
+    if (sort === "title") {
+        result.sort((a, b) => a.title.localeCompare(b.title));
+    }
+    if (sort === "year") {
+        result.sort((a, b) => a.year - b.year);
+    }
+
+    // Pagination.
+    const currentPage = Number(page) || 1;
+    const itemsPerPage = Number(limit) || result.length;
+    const startIndex = (currentPage - 1) * itemsPerPage;
+
+    result = result.slice(
+        startIndex,
+        startIndex + itemsPerPage
+    );
+
+    res.status(200).json(result);
+});
 // Get a book by ID.
 router.get(
     "/:id",
