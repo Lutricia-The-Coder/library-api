@@ -3,6 +3,7 @@ import express, { Express } from 'express';
 import { loggerMiddleware } from './middleware/logger';
 import authorRoutes from './routes/author_route';
 import bookRoutes from "./routes/books_route";
+import { errorHandler } from "./middleware/errorHandler";
 
 const app: Express = express();
 const PORT = process.env.PORT || 3000;
@@ -18,6 +19,8 @@ app.use("/authors", authorRoutes);
 // Book routes
 app.use("/books", bookRoutes);
 
+// Centralized error handler
+app.use(errorHandler);
 // Starts the Express server.
 app.listen(PORT, () => {
     console.log(`server is running on http://localhost:${PORT}`);

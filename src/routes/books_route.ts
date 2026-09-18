@@ -1,31 +1,55 @@
-import { Router, Request, Response } from "express";
+import { Router, Request, Response, NextFunction } from "express";
 import { books, Book } from "../models/book_model";
 import { authors } from "../models/author_model";
 import { validateBook } from "../middleware/validation";
+import { AppError } from "../errors/appError";
 
 const router = Router();
 
 // Create a new book.
-router.post("/", validateBook, (req: Request, res: Response) => {
-    const { title, authorId, year } = req.body;
-    const author = authors.find((author) => author.id === Number(authorId));
+router.post(
+    "/",
+    validateBook,
+    (req: Request, res: Response, next: NextFunction) => {
+        try {
+            const { title, authorId, year } = req.body;
 
-    if (!author) {
-        res.status(400).json({ message: "Author does not exist"});
-        return;
+            // Check if the author exists.
+            const author = authors.find(
+                (author) => author.id === Number(authorId)
+            );
+
+            if (!author) {
+                throw new AppError("Author does not exist", 400);
+            }
+
+            // Check if the book already exists.
+            const duplicateBook = books.find(
+                (book) =>
+                    book.title.toLowerCase() === title.toLowerCase() &&
+                    book.authorId === Number(authorId)
+            );
+
+            if (duplicateBook) {
+                throw new AppError("Book already exists", 409);
+            }
+
+            const book: Book = {
+                id: books.length + 1,
+                title,
+                authorId: Number(authorId),
+                year,
+                dateAdded: new Date().toISOString()
+            };
+
+            books.push(book);
+
+            res.status(201).json(book);
+        } catch (error) {
+            next(error);
+        }
     }
-
-    const book: Book = {
-        id: books.length + 1,
-        title,
-        authorId: Number(authorId),
-        year,
-        dateAdded: new Date().toISOString()
-    };
-
-    books.push(book);
-    res.status(201).json(book);
-});
+);
 
 // Get all books.
 router.get("/", (_req: Request, res: Response) => {
@@ -33,53 +57,93 @@ router.get("/", (_req: Request, res: Response) => {
 });
 
 // Get a book by ID.
-router.get("/:id", (req: Request, res: Response) => {
-    const id = Number(req.params.id);
-    const book = books.find((book) => book.id === id);
+router.get(
+    "/:id",
+    (req: Request, res: Response, next: NextFunction) => {
+        try {
+            const id = Number(req.params.id);
 
-    if (!book) {
-        res.status(404).json({ message: "Book not found" });
-        return;
+            const book = books.find((book) => book.id === id);
+
+            if (!book) {
+                throw new AppError("Book not found", 404);
+            }
+
+            res.status(200).json(book);
+        } catch (error) {
+            next(error);
+        }
     }
-
-    res.status(200).json(book);
-});
+);
 
 // Update a book.
-router.put("/:id", validateBook, (req: Request, res: Response) => {
-    const id = Number(req.params.id);
-    const book = books.find((book) => book.id === id);
+router.put(
+    "/:id",
+    validateBook,
+    (req: Request, res: Response, next: NextFunction) => {
+        try {
+            const id = Number(req.params.id);
 
-    if (!book) {
-        res.status(404).json({ message: "Book not found"});
-        return;
+            const book = books.find((book) => book.id === id);
+
+            if (!book) {
+                throw new AppError("Book not found", 404);
+            }
+
+            const { title, authorId, year } = req.body;
+
+            // Check if the new author exists.
+            const author = authors.find(
+                (author) => author.id === Number(authorId)
+            );
+
+            if (!author) {
+                throw new AppError("Author does not exist", 400);
+            }
+
+            // Check for another book with the same title and author.
+            const duplicateBook = books.find(
+                (existingBook) =>
+                    existingBook.id !== id &&
+                    existingBook.title.toLowerCase() === title.toLowerCase() &&
+                    existingBook.authorId === Number(authorId)
+            );
+
+            if (duplicateBook) {
+                throw new AppError("Book already exists", 409);
+            }
+
+            book.title = title;
+            book.authorId = Number(authorId);
+            book.year = year;
+
+            res.status(200).json(book);
+        } catch (error) {
+            next(error);
+        }
     }
-
-    const { title, authorId, year } = req.body;
-    const author = authors.find((author) => author.id === Number(authorId));
-
-    if (!author) {
-        res.status(400).json({ message: "Author does not exist" });
-        return;
-    }
-
-    book.title = title;
-    book.authorId = Number(authorId);
-    book.year = year;
-    res.status(200).json(book);
-});
+);
 
 // Delete a book.
-router.delete("/:id", (req: Request, res: Response) => {
-    const id = Number(req.params.id);
-    const index = books.findIndex((book) => book.id === id);
+router.delete(
+    "/:id",
+    (req: Request, res: Response, next: NextFunction) => {
+        try {
+            const id = Number(req.params.id);
 
-    if (index === -1) {
-        res.status(404).json({  message: "Book not found" });
-        return;
+            const index = books.findIndex((book) => book.id === id);
+
+            if (index === -1) {
+                throw new AppError("Book not found", 404);
+            }
+
+            const deletedBook = books.splice(index, 1)[0];
+
+            res.status(200).json(deletedBook);
+        } catch (error) {
+            next(error);
+        }
     }
-    const deletedBook = books.splice(index, 1)[0];
-    res.status(200).json(deletedBook);
-});
+);
 
 export default router;
