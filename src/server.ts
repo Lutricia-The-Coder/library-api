@@ -1,7 +1,8 @@
 import bodyParser from 'body-parser';
 import express, { Express } from 'express';
 import { loggerMiddleware } from './middleware/logger';
-import authorRoutes from './routes/author';
+import authorRoutes from './routes/author_route';
+import bookRoutes from "./routes/books_route";
 
 const app: Express = express();
 const PORT = process.env.PORT || 3000;
@@ -13,6 +14,9 @@ app.use(loggerMiddleware);
 
 // Author routes
 app.use("/authors", authorRoutes);
+
+// Book routes
+app.use("/books", bookRoutes);
 
 // Starts the Express server.
 app.listen(PORT, () => {
