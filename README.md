@@ -22,7 +22,7 @@ Each book belongs to an author using an `authorId` relationship.
 ### 1. Clone the repository
 
 ```bash
-git clone <repository-url>
+git clone https://github.com/Lutricia-The-Coder/library-api.git
 cd <project-folder>
 ```
 
