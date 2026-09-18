@@ -38,3 +38,40 @@ router.get("/:id", (req: Request, res: Response) => {
   res.status(200).json(author);
 });
 
+// Update an author.
+router.put("/:id", (req: Request, res: Response) => {
+  const id = Number(req.params.id);
+
+  const author = authors.find((author) => author.id === id);
+
+  if (!author) {
+    return res.status(404).json({
+      message: "Author not found",
+    });
+  }
+
+  const { name } = req.body;
+
+  author.name = name;
+
+  res.status(200).json(author);
+});
+
+// Delete an author.
+router.delete("/:id", (req: Request, res: Response) => {
+  const id = Number(req.params.id);
+
+  const index = authors.findIndex((author) => author.id === id);
+
+  if (index === -1) {
+    return res.status(404).json({
+      message: "Author not found",
+    });
+  }
+
+  const deletedAuthor = authors.splice(index, 1)[0];
+
+  res.status(200).json(deletedAuthor);
+});
+
+export default router;
