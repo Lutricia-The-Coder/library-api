@@ -58,6 +58,16 @@ The API should start on:
 http://localhost:3000
 ```
 
+## Preview
+
+![Authors](src/assets/authors.png)
+
+![Books](src/assets/books.png)
+
+![Get all books](src/assets/getallbooks.png)
+
+![Authors and books](src/assets/getauthors&books.png)
+
 ### 5. Test the API
 
 You can test the API using **Postman**.
