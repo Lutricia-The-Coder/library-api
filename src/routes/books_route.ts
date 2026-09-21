@@ -51,60 +51,122 @@ router.post(
     }
 );
 
-// Get all books.
-// Get all books with optional filtering, searching, sorting and pagination.
-router.get("/", (req: Request, res: Response,next :NextFunction) => {
-    try{
-    const { year, search, sort, page, limit } = req.query;
-    let result = [...books];
+// Get all books with optional search, filtering, sorting and pagination.
+router.get("/", (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const { year, search, sort, page, limit } = req.query;
 
-    // Filter books by year.
- if(year !== undefined) {
-    const yearValue=Number(year);
+        let result = [...books];
 
-    if(!Number.isInteger(yearValue) || yearValue<=0){
-        throw new AppError("Year must be a valid positive number", 400)
-    }
-    result=result.filter((book) =>book.year === yearValue)
- }
+        // Validate and filter by year.
+        if (year !== undefined) {
+            const yearValue = Number(year);
 
-    // Search books by title.
-if(search !== undefined){
-    if(typeof search !== "string" || search.trim() ===""){
-        throw new AppError("Search must be a non empty string", 400)
-    }
-    result=result.filter((book) => book.title.toLowerCase().includes(search.toLowerCase()))
-}
+            if (
+                typeof year !== "string" ||
+                year.trim() === "" ||
+                !Number.isInteger(yearValue) ||
+                yearValue <= 0
+            ) {
+                throw new AppError(
+                    "Year must be a valid positive number",
+                    400
+                );
+            }
 
-    // Sort books by title or year.
-    if(sort !== undefined){
-        if(sort !== "title" && sort !== "year"){
-            throw new AppError("Sort must be either 'title' o 'year'",400)
+            result = result.filter((book) => book.year === yearValue);
         }
-    if (sort === "title") {
-        result.sort((a, b) => a.title.localeCompare(b.title));
-    }
-    if (sort === "year") {
-        result.sort((a, b) => a.year - b.year);
-    }
-    }
-    // Pagination.
-    const currentPage = Number(page) || 1;
-    const itemsPerPage = Number(limit) || result.length;
 
-    if(!Number.isInteger(currentPage) || currentPage<=0){
-        throw new AppError("Page must be a postive integer",400)
+        // Validate and search by title.
+        if (search !== undefined) {
+            if (
+                typeof search !== "string" ||
+                search.trim() === ""
+            ) {
+                throw new AppError(
+                    "Search must be a non-empty string",
+                    400
+                );
+            }
+
+            result = result.filter((book) =>
+                book.title
+                    .toLowerCase()
+                    .includes(search.toLowerCase())
+            );
+        }
+
+        // Validate and sort books.
+        if (sort !== undefined) {
+            if (sort !== "title" && sort !== "year") {
+                throw new AppError(
+                    "Sort must be either 'title' or 'year'",
+                    400
+                );
+            }
+
+            if (sort === "title") {
+                result.sort((a, b) =>
+                    a.title.localeCompare(b.title)
+                );
+            }
+
+            if (sort === "year") {
+                result.sort((a, b) => a.year - b.year);
+            }
+        }
+
+        // Validate page only when it is provided.
+        let currentPage = 1;
+
+        if (page !== undefined) {
+            currentPage = Number(page);
+
+            if (
+                typeof page !== "string" ||
+                !Number.isInteger(currentPage) ||
+                currentPage <= 0
+            ) {
+                throw new AppError(
+                    "Page must be a positive integer",
+                    400
+                );
+            }
+        }
+
+        // Validate limit only when it is provided.
+        let itemsPerPage = result.length;
+
+        if (limit !== undefined) {
+            itemsPerPage = Number(limit);
+
+            if (
+                typeof limit !== "string" ||
+                !Number.isInteger(itemsPerPage) ||
+                itemsPerPage <= 0
+            ) {
+                throw new AppError(
+                    "Limit must be a positive integer",
+                    400
+                );
+            }
+        }
+
+        // Apply pagination only when page or limit is provided.
+        if (page !== undefined || limit !== undefined) {
+            const startIndex = (currentPage - 1) * itemsPerPage;
+
+            result = result.slice(
+                startIndex,
+                startIndex + itemsPerPage
+            );
+        }
+
+        res.status(200).json(result);
+    } catch (error) {
+        next(error);
     }
-    if(!Number.isInteger(itemsPerPage) || itemsPerPage <=0){
-              throw new AppError("Limit must be a postive integer",400)
-    }
-    const startIndex=(currentPage - 1)* itemsPerPage
-    result=result.slice(startIndex, startIndex+itemsPerPage);
-    res.status(200).json(result);
-} catch(error){
-    next(error);
-}
-   });
+});
 // Get a book by ID.
 router.get(
     "/:id",
