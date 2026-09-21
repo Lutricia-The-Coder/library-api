@@ -59,13 +59,16 @@ http://localhost:3000
 ```
 
 ## Preview
-
+## Add authors
 ![Authors](src/assets/authors.png)
 
+## Add books
 ![Books](src/assets/books.png)
 
+## Get All Books
 ![Get all books](src/assets/getallbooks.png)
 
+## Get authors and books using author id
 ![Authors and books](src/assets/getauthors&books.png)
 
 ### 5. Test the API
