@@ -7,9 +7,7 @@ export const validateBook = (req: Request,res: Response,next: NextFunction
 
     // Check that all required fields are provided.
     if (!title || !authorId || !year) {
-        res.status(400).json({
-            message: "Title, authorId and year are required"
-        });
+        res.status(400).json({message: "Title, authorId and year are required" });
         return;
     }
 

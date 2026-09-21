@@ -11,6 +11,7 @@ const PORT = process.env.PORT || 3000;
 // Default middleware
 app.use(express.json());
 app.use(bodyParser.json());
+//my logger middleware
 app.use(loggerMiddleware);
 
 // Author routes

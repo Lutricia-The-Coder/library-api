@@ -7,17 +7,12 @@ import { AppError } from "../errors/appError";
 const router = Router();
 
 // Create a new book.
-router.post(
-    "/",
-    validateBook,
-    (req: Request, res: Response, next: NextFunction) => {
+router.post( "/", validateBook,(req: Request, res: Response, next: NextFunction) => {
         try {
             const { title, authorId, year } = req.body;
 
             // Check if the author exists.
-            const author = authors.find(
-                (author) => author.id === Number(authorId)
-            );
+            const author = authors.find((author) => author.id === Number(authorId));
 
             if (!author) {
                 throw new AppError("Author does not exist", 400);
@@ -62,53 +57,32 @@ router.get("/", (req: Request, res: Response, next: NextFunction) => {
         if (year !== undefined) {
             const yearValue = Number(year);
 
-            if (
-                typeof year !== "string" ||
-                year.trim() === "" ||
-                !Number.isInteger(yearValue) ||
-                yearValue <= 0
-            ) {
-                throw new AppError(
-                    "Year must be a valid positive number",
-                    400
-                );
+if ( typeof year !== "string" || year.trim() === "" ||!Number.isInteger(yearValue) || yearValue <= 0) {
+                throw new AppError( "Year must be a valid positive number",400);
             }
-
             result = result.filter((book) => book.year === yearValue);
         }
 
         // Validate and search by title.
         if (search !== undefined) {
-            if (
-                typeof search !== "string" ||
-                search.trim() === ""
-            ) {
-                throw new AppError(
-                    "Search must be a non-empty string",
-                    400
-                );
+            if (typeof search !== "string" ||search.trim() === "") {
+                throw new AppError("Search must be a non-empty string",400                );
             }
 
             result = result.filter((book) =>
-                book.title
-                    .toLowerCase()
-                    .includes(search.toLowerCase())
+                book.title.toLowerCase().includes(search.toLowerCase())
             );
         }
 
         // Validate and sort books.
         if (sort !== undefined) {
             if (sort !== "title" && sort !== "year") {
-                throw new AppError(
-                    "Sort must be either 'title' or 'year'",
-                    400
-                );
+                throw new AppError("Sort must be either 'title' or 'year'", 400 );
             }
 
             if (sort === "title") {
-                result.sort((a, b) =>
-                    a.title.localeCompare(b.title)
-                );
+                result.sort((a, b) => 
+                    a.title.localeCompare(b.title));
             }
 
             if (sort === "year") {
@@ -122,15 +96,8 @@ router.get("/", (req: Request, res: Response, next: NextFunction) => {
         if (page !== undefined) {
             currentPage = Number(page);
 
-            if (
-                typeof page !== "string" ||
-                !Number.isInteger(currentPage) ||
-                currentPage <= 0
-            ) {
-                throw new AppError(
-                    "Page must be a positive integer",
-                    400
-                );
+            if (typeof page !== "string" ||!Number.isInteger(currentPage) ||currentPage <= 0 ) {
+                throw new AppError("Page must be a positive integer",400);
             }
         }
 
@@ -140,15 +107,8 @@ router.get("/", (req: Request, res: Response, next: NextFunction) => {
         if (limit !== undefined) {
             itemsPerPage = Number(limit);
 
-            if (
-                typeof limit !== "string" ||
-                !Number.isInteger(itemsPerPage) ||
-                itemsPerPage <= 0
-            ) {
-                throw new AppError(
-                    "Limit must be a positive integer",
-                    400
-                );
+            if (typeof limit !== "string" ||!Number.isInteger(itemsPerPage) ||itemsPerPage <= 0) {
+                throw new AppError("Limit must be a positive integer",400);
             }
         }
 
@@ -156,10 +116,7 @@ router.get("/", (req: Request, res: Response, next: NextFunction) => {
         if (page !== undefined || limit !== undefined) {
             const startIndex = (currentPage - 1) * itemsPerPage;
 
-            result = result.slice(
-                startIndex,
-                startIndex + itemsPerPage
-            );
+            result = result.slice( startIndex,startIndex + itemsPerPage);
         }
 
         res.status(200).json(result);
@@ -168,18 +125,14 @@ router.get("/", (req: Request, res: Response, next: NextFunction) => {
     }
 });
 // Get a book by ID.
-router.get(
-    "/:id",
-    (req: Request, res: Response, next: NextFunction) => {
+router.get("/:id", (req: Request, res: Response, next: NextFunction) => {
         try {
             const id = Number(req.params.id);
-
             const book = books.find((book) => book.id === id);
 
             if (!book) {
                 throw new AppError("Book not found", 404);
             }
-
             res.status(200).json(book);
         } catch (error) {
             next(error);
@@ -188,13 +141,9 @@ router.get(
 );
 
 // Update a book.
-router.put(
-    "/:id",
-    validateBook,
-    (req: Request, res: Response, next: NextFunction) => {
+router.put("/:id",validateBook,(req: Request, res: Response, next: NextFunction) => {
         try {
             const id = Number(req.params.id);
-
             const book = books.find((book) => book.id === id);
 
             if (!book) {
@@ -236,12 +185,9 @@ router.put(
 );
 
 // Delete a book.
-router.delete(
-    "/:id",
-    (req: Request, res: Response, next: NextFunction) => {
+router.delete( "/:id",(req: Request, res: Response, next: NextFunction) => {
         try {
             const id = Number(req.params.id);
-
             const index = books.findIndex((book) => book.id === id);
 
             if (index === -1) {
