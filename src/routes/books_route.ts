@@ -58,11 +58,14 @@ router.get("/", (req: Request, res: Response) => {
     let result = [...books];
 
     // Filter books by year.
-    if (year) {
-        result = result.filter(
-            (book) => book.year === Number(year)
-        );
+ if(year !== undefined) {
+    const yearValue=Number(year);
+
+    if(!Number.isInteger(yearValue) || yearValue<=0){
+        throw new AppError("Year must be a valid positive number", 400)
     }
+    result=result.filter((book) =>book.year === yearValue)
+ }
 
     // Search books by title.
     if (search) {
