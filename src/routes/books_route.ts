@@ -76,13 +76,17 @@ if(search !== undefined){
 }
 
     // Sort books by title or year.
+    if(sort !== undefined){
+        if(sort !== "title" && sort !== "year"){
+            throw new AppError("Sort must be either 'title' o 'year'",400)
+        }
     if (sort === "title") {
         result.sort((a, b) => a.title.localeCompare(b.title));
     }
     if (sort === "year") {
         result.sort((a, b) => a.year - b.year);
     }
-
+    }
     // Pagination.
     const currentPage = Number(page) || 1;
     const itemsPerPage = Number(limit) || result.length;
