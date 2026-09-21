@@ -68,14 +68,12 @@ router.get("/", (req: Request, res: Response) => {
  }
 
     // Search books by title.
-    if (search) {
-        result = result.filter(
-            (book) =>
-                book.title
-                    .toLowerCase()
-                    .includes(String(search).toLowerCase())
-        );
+if(search !== undefined){
+    if(typeof search !== "string" || search.trim() ===""){
+        throw new AppError("Search must be a non empty string", 400)
     }
+    result=result.filter((book) => book.title.toLowerCase().includes(search.toLowerCase()))
+}
 
     // Sort books by title or year.
     if (sort === "title") {
