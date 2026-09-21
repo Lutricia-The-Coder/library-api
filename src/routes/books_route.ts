@@ -53,7 +53,8 @@ router.post(
 
 // Get all books.
 // Get all books with optional filtering, searching, sorting and pagination.
-router.get("/", (req: Request, res: Response) => {
+router.get("/", (req: Request, res: Response,next :NextFunction) => {
+    try{
     const { year, search, sort, page, limit } = req.query;
     let result = [...books];
 
@@ -90,15 +91,20 @@ if(search !== undefined){
     // Pagination.
     const currentPage = Number(page) || 1;
     const itemsPerPage = Number(limit) || result.length;
-    const startIndex = (currentPage - 1) * itemsPerPage;
 
-    result = result.slice(
-        startIndex,
-        startIndex + itemsPerPage
-    );
-
+    if(!Number.isInteger(currentPage) || currentPage<=0){
+        throw new AppError("Page must be a postive integer",400)
+    }
+    if(!Number.isInteger(itemsPerPage) || itemsPerPage <=0){
+              throw new AppError("Limit must be a postive integer",400)
+    }
+    const startIndex=(currentPage - 1)* itemsPerPage
+    result=result.slice(startIndex, startIndex+itemsPerPage);
     res.status(200).json(result);
-});
+} catch(error){
+    next(error);
+}
+   });
 // Get a book by ID.
 router.get(
     "/:id",
