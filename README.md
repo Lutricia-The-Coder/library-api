@@ -107,7 +107,7 @@ src/
 │   ├── author.routes.ts
 │   └── book.routes.ts
 │
-└── app.ts
+└── server.ts
 ```
 
 ## API Endpoints
